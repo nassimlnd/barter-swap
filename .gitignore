@@ -1,0 +1,22 @@
+# Binaries
+barterswap
+*.exe
+*.test
+*.out
+
+# Go build / coverage
+coverage.out
+coverage.html
+tmp/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Air live reload
+tmp/
+
+# Env files
+.env
+.env.local

@@ -1,0 +1,26 @@
+.git
+.github
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+docs
+*.md
+!README.md
+
+# Tests sources are excluded from production runtime image but
+# the dev/test overlays mount the working dir so they remain available there.
+*_test.go
+testdata
+
+# Local dev artifacts
+tmp
+coverage.out
+coverage.html
+.air.toml
+.env
+.env.local
+
+# Compose files don't need to be in the build context
+docker-compose*.yml
