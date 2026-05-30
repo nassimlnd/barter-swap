@@ -1,0 +1,30 @@
+# Dev overlay: live reload with Air, source mounted from host.
+# This file is automatically merged by `docker compose up`.
+services:
+  api:
+    image: golang:1.25-alpine
+    build: !reset null
+    working_dir: /src
+    volumes:
+      - ./:/src
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    command:
+      - sh
+      - -c
+      - |
+        apk add --no-cache git curl >/dev/null
+        if ! command -v air >/dev/null 2>&1; then
+          go install github.com/air-verse/air@latest
+        fi
+        exec air -c .air.toml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      start_period: 30s
+      retries: 5
+
+volumes:
+  go-mod-cache:
+  go-build-cache:
