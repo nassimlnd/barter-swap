@@ -1,0 +1,40 @@
+# Test overlay: isolated test database + test runner container.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm test
+services:
+  db_test:
+    image: postgres:16-alpine
+    container_name: barterswap_db_test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: barterswap_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d barterswap_test"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  test:
+    image: golang:1.25-alpine
+    working_dir: /src
+    volumes:
+      - ./:/src
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    environment:
+      DATABASE_URL: postgres://test:test@db_test:5432/barterswap_test?sslmode=disable
+      TEST_DATABASE_URL: postgres://test:test@db_test:5432/barterswap_test?sslmode=disable
+    depends_on:
+      db_test:
+        condition: service_healthy
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        apk add --no-cache git >/dev/null
+        go test -v -cover -coverprofile=coverage.out ./...
+
+volumes:
+  go-mod-cache:
+  go-build-cache:
