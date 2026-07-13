@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: BarterSwap API
+  version: 1.0.0
+  description: API REST d'échange de compétences via crédits-temps.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      summary: Healthcheck API + DB
+      responses:
+        '200': { description: OK }
+        '503': { description: DB indisponible }
+  /api/users:
+    post:
+      summary: Créer un utilisateur avec 10 crédits de bienvenue
+      responses:
+        '201': { description: Utilisateur créé }
+        '400': { description: Payload invalide }
+        '409': { description: Pseudo déjà utilisé }
+  /api/users/{id}:
+    get:
+      summary: Profil public utilisateur
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Utilisateur }
+        '404': { description: Introuvable }
+    put:
+      summary: Modifier son profil
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Utilisateur modifié }
+        '401': { description: X-UserID manquant }
+        '403': { description: Mauvais utilisateur }
+  /api/users/{id}/skills:
+    get:
+      summary: Lister les compétences d'un utilisateur
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Liste de compétences }
+    put:
+      summary: Remplacer toutes ses compétences
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Compétences remplacées }
+  /api/services:
+    get:
+      summary: Liste paginée des services actifs
+      parameters:
+        - { name: categorie, in: query, schema: { type: string } }
+        - { name: ville, in: query, schema: { type: string } }
+        - { name: search, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        '200': { description: Page de services }
+    post:
+      summary: Créer une annonce de service
+      responses:
+        '201': { description: Service créé }
+  /api/services/{id}:
+    get:
+      summary: Détail d'un service
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Service }
+    put:
+      summary: Modifier son service
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Service modifié }
+    delete:
+      summary: Supprimer son service
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Supprimé }
+  /api/exchanges:
+    get:
+      summary: Liste des échanges de l'utilisateur courant
+      responses:
+        '200': { description: Page d'échanges }
+    post:
+      summary: Créer une demande d'échange
+      responses:
+        '201': { description: Échange pending créé }
+  /api/exchanges/{id}/accept:
+    put:
+      summary: Accepter une demande et bloquer les crédits
+      responses:
+        '200': { description: Accepted }
+  /api/exchanges/{id}/complete:
+    put:
+      summary: Marquer terminé et transférer les crédits
+      responses:
+        '200': { description: Completed }
+  /api/exchanges/{id}/cancel:
+    put:
+      summary: Annuler et rembourser si nécessaire
+      responses:
+        '200': { description: Cancelled }
+  /api/exchanges/{id}/reject:
+    put:
+      summary: Refuser une demande
+      responses:
+        '200': { description: Rejected }
+  /api/exchanges/{id}/review:
+    post:
+      summary: Laisser un avis après complétion
+      responses:
+        '201': { description: Avis créé }
+        '409': { description: Avis déjà déposé }
+  /api/users/{id}/stats:
+    get:
+      summary: Statistiques de l'utilisateur courant
+      responses:
+        '200': { description: Stats utilisateur }
